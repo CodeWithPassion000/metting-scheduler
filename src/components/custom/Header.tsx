@@ -1,10 +1,30 @@
 import React from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+
+interface HeaderType {
+  name: string;
+}
+
+const headers: HeaderType[] = [
+  {
+    name: 'Product',
+  },
+  {
+    name: 'Pricing',
+  },
+  {
+    name: 'Contact Us',
+  },
+  {
+    name: ' About Us',
+  },
+];
+
 function Header() {
   return (
     <div>
-      <div className="flex items-center justify-between ">
+      <div className="flex items-center justify-between p-5 shadow-sm">
         <Image
           src="logo.svg"
           width={100}
@@ -12,13 +32,16 @@ function Header() {
           alt="logo"
           className="w-[150px] md:w[200px]"
         />
-        <ul className="flex gap-14">
-          <li>Product</li>
-          <li>Pricing</li>
-          <li>Contact Us</li>
-          <li>About Us</li>
+        <ul className="hidden md:flex gap-14 font-medium text-lg">
+          {headers.map((item, index) => {
+            return (
+              <li className="hover:text-primary transition-all duration-300 cursor-pointer">
+                {item.name}
+              </li>
+            );
+          })}
         </ul>
-        <div>
+        <div className="flex gap-5">
           <Button variant="ghost">Login</Button>
           <Button>Get Started</Button>
         </div>
