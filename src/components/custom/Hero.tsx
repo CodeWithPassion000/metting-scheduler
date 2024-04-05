@@ -33,16 +33,55 @@ const profileImages: ImageType[] = [
     position: 'right-36',
   },
   {
-    url: 'profileOne.jpg',
-    alt: 'Profile One',
-    position: 'right-36',
+    url: 'profileTwo.jpg',
+    alt: 'Profile Tne',
+    position: 'top-48 left-16',
+  },
+  {
+    url: 'profileThree.jpg',
+    alt: 'Profile Three',
+    position: 'bottom-20 left-36',
+  },
+  {
+    url: 'profileFour.jpg',
+    alt: 'Profile Four',
+    position: 'right-16 bottom-32',
   },
 ];
 
 function Hero() {
   return (
     <div className="flex flex-col justify-center items-center my-20">
-      <div></div>
+      <div className="hidden lg:block">
+        <Image
+          src="/profileOne.jpg"
+          width={100}
+          height={100}
+          alt="Profile one"
+          className="h-[100px] object-cover rounded-full absolute right-36"
+        />
+        <Image
+          src="/profileTwo.jpg"
+          width={100}
+          height={100}
+          alt="Profile Two"
+          className="h-[100px] object-cover rounded-full absolute top-48 left-16"
+        />
+        <Image
+          src="/profileThree.jpg"
+          width={100}
+          height={100}
+          alt="Profile Three"
+          className="h-[100px] object-cover rounded-full absolute bottom-20 left-36"
+        />
+        <Image
+          src="/profileFour.jpg"
+          width={100}
+          height={100}
+          alt="Profile Four"
+          className="h-[100px] object-cover rounded-full absolute right-16 bottom-32"
+        />
+      </div>
       <div className="text-center max-w-3xl">
         <h2 className="font-bold text-[60px] text-slate-700">
           Easy scheduling ahead

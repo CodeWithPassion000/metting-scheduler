@@ -1,6 +1,10 @@
 import React from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+import {
+  RegisterLink,
+  LoginLink,
+} from '@kinde-oss/kinde-auth-nextjs/components';
 
 interface HeaderType {
   name: string;
@@ -42,8 +46,12 @@ function Header() {
           })}
         </ul>
         <div className="flex gap-5">
-          <Button variant="ghost">Login</Button>
-          <Button>Get Started</Button>
+          <LoginLink>
+            <Button variant="ghost">Login</Button>
+          </LoginLink>
+          <RegisterLink>
+            <Button>Get Started</Button>
+          </RegisterLink>
         </div>
       </div>
     </div>
