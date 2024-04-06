@@ -46,7 +46,7 @@ function page() {
 
   return (
     <div>
-      <LogoutLink>page</LogoutLink>
+      <LogoutLink>Dashnoard</LogoutLink>
     </div>
   );
 }
