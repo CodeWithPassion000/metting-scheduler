@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ChevronLeft } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { use, useState } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,16 +17,45 @@ import Image from 'next/image';
 import Link from 'next/link';
 import ThemeOption from '../../../../utils/ThemeOption';
 import { Event } from '@/types/eventstypes';
+import { doc, getFirestore, setDoc } from 'firebase/firestore';
+import { app } from '../../../../config/FirebaseConfig';
+import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 interface MeetingFormProps {
   eventDetails: Event;
   setEventDetails: React.Dispatch<React.SetStateAction<Event>>;
 }
 
 function MeetingForm({ eventDetails, setEventDetails }: MeetingFormProps) {
+  const { user } = useKindeBrowserClient();
+
+  const db = getFirestore(app);
+
+  const router = useRouter();
+
   const eventHandler = (name: string, value: string | number) => {
     if (name && value) {
       setEventDetails({ ...eventDetails, [name]: value });
     }
+  };
+
+  const createEventHandler = async () => {
+    const id = Date.now().toString();
+
+    await setDoc(doc(db, 'MeetingEvent', id), {
+      id: id,
+      name: eventDetails?.name,
+      duration: eventDetails?.duration,
+      type: eventDetails?.type,
+      url: eventDetails?.url,
+      color: eventDetails?.color,
+      businessId: user?.email && doc(db, 'Business', user?.email),
+      createdBy: user?.email && user?.email,
+    }).then((res) => {
+      toast('New Meeting Event Created !');
+      router.replace('/dashboard/meeting-type');
+    });
   };
 
   return (
@@ -129,6 +158,7 @@ function MeetingForm({ eventDetails, setEventDetails }: MeetingFormProps) {
             eventDetails?.url
           )
         }
+        onClick={createEventHandler}
       >
         Create
       </Button>

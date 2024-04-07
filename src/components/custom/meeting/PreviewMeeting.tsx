@@ -76,6 +76,7 @@ function PreviewMeeting({ eventDetails }: PreviewProps) {
               selected={date}
               onSelect={setDate}
               className="rounded-md border mt-5"
+              disabled={(date) => date <= new Date()}
             />
           </div>
           <div
