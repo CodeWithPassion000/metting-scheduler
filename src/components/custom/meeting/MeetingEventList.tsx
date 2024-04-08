@@ -4,6 +4,7 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDoc,
   getDocs,
   getFirestore,
   orderBy,
@@ -31,9 +32,11 @@ function MeetingEventList() {
   const { user } = useKindeBrowserClient();
 
   const [eventList, setEventlist] = useState<any>([]);
+  const [businessInfoData, setBusinessInfoData] = useState<any>();
 
   useEffect(() => {
     user && getEventList();
+    user && businessInfo();
   }, [user]);
 
   const getEventList = async () => {
@@ -59,6 +62,21 @@ function MeetingEventList() {
         toast('Meeting Event Deleted !');
         getEventList();
       }));
+  };
+
+  const businessInfo = async () => {
+    if (user?.email) {
+      const docRef = doc(db, 'Business', user?.email);
+      const docSnap = await getDoc(docRef);
+      setBusinessInfoData(docSnap.data());
+    }
+  };
+
+  const onCopyClickHandler = (event: Event) => {
+    const meetingEventUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/${businessInfoData.businessName}/${event.id}`;
+
+    navigator.clipboard.writeText(meetingEventUrl);
+    toast('Copied to Clicboard');
   };
 
   return (
@@ -110,8 +128,7 @@ function MeetingEventList() {
                 <h2
                   className="flex gap-2 text-sm items-center text-primary cursor-pointer"
                   onClick={() => {
-                    navigator.clipboard.writeText(event.url);
-                    toast('Copied to Clicboard');
+                    onCopyClickHandler(event);
                   }}
                 >
                   <Copy className="h-4 w-4" />
