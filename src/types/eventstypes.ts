@@ -4,4 +4,8 @@ export interface Event {
   type: string;
   url: string;
   color: string;
+  createdBy?: string;
+  businessId?: unknown;
+  id?: string
+
 }
