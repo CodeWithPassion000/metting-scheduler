@@ -9,3 +9,20 @@ export interface Event {
   id?: string
 
 }
+
+export const initialEvent = {
+  name: '',
+  duration: 0,
+  type: '',
+  url: '',
+  color: '',
+  createdBy: '',
+  businessId: '',
+  id: ''
+
+}
+export interface UserDetail {
+  userName: string;
+  email: string;
+  note: string
+}
