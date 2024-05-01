@@ -5,13 +5,27 @@ import { CalendarCheck, Clock, MapPin, Timer } from 'lucide-react';
 import Link from 'next/link';
 import { Calendar } from '@/components/ui/calendar';
 import { Button } from '@/components/ui/button';
-import { DocumentData, doc, getFirestore, setDoc } from 'firebase/firestore';
+import Plunk from '@plunk/node';
+import {
+  DocumentData,
+  collection,
+  doc,
+  getDocs,
+  getFirestore,
+  query,
+  setDoc,
+  where,
+} from 'firebase/firestore';
 import { Business } from '@/types/businesstypes';
 
 import { formatDate, format } from 'date-fns';
 import UserFormInfo from './UserFormInfo';
 import { app } from '../../../../config/FirebaseConfig';
 import { toast } from 'sonner';
+import { render } from '@react-email/render';
+
+import Email from '../../../../emails';
+import { useRouter } from 'next/navigation';
 
 interface PreviewProps {
   eventDetails: Event | DocumentData;
@@ -23,7 +37,7 @@ function MeetingTimeDateSelection({
   businessInfo,
 }: PreviewProps) {
   // console.log('event details', eventDetails, 'business name', businessInfo);
-
+  const router = useRouter();
   const db = getFirestore(app);
 
   const [date, setDate] = useState<Date>(new Date());
@@ -36,6 +50,12 @@ function MeetingTimeDateSelection({
     email: '',
     note: '',
   });
+  const [previousBooking, setPreviousBooking] = useState<any>([]);
+
+  let plunk: Plunk;
+  if (process.env.NEXT_PUBLIC_PLUNK_API_KEY != undefined) {
+    plunk = new Plunk(process.env.NEXT_PUBLIC_PLUNK_API_KEY);
+  }
 
   useEffect(() => {
     eventDetails?.duration && createTimeSolt(eventDetails?.duration);
@@ -65,6 +85,7 @@ function MeetingTimeDateSelection({
     setDate(date);
     const day = format(date, 'EEEE');
     if (businessInfo?.dayAvailable[day]) {
+      getEventBooking(date);
       setEnableTimeSlot(true);
     } else {
       setEnableTimeSlot(false);
@@ -101,9 +122,56 @@ function MeetingTimeDateSelection({
           userNote: userDetails.note,
         }).then((resp) => {
           toast('Meeting Scheduled successfully !');
+          sendEmail(userDetails.userName);
         });
       }
     }
+  };
+
+  const getEventBooking = async (date_: any) => {
+    const q = query(
+      collection(db, 'ScheduleMeeting'),
+      where('selectedDate', '==', date_),
+      where('eventId', '==', eventDetails.id)
+    );
+
+    const querySnapshot = await getDocs(q);
+
+    querySnapshot.forEach((doc) => {
+      console.log('--', doc.data());
+      setPreviousBooking((prev: any) => [...prev, doc.data()]);
+    });
+  };
+
+  const checkTimeSlot = (time: any) => {
+    return (
+      previousBooking.filter((item: any) => item.selectedTime == time).length >
+      0
+    );
+  };
+
+  const sendEmail = (user: string) => {
+    const emailHtml = render(
+      <Email
+        businessName={businessInfo?.businessName}
+        date={date}
+        duration={eventDetails?.duration}
+        mettingTime={selectedTime}
+        mettingUrl={eventDetails?.url}
+        userFirstName={userDetails.userName}
+      />
+    );
+
+    plunk.emails
+      .send({
+        to: userDetails.email,
+        subject: 'New meeting schedule details',
+        body: emailHtml,
+      })
+      .then((resp) => {
+        console.log(resp);
+        router.replace('/confirmation');
+      });
   };
 
   return (
@@ -174,7 +242,7 @@ function MeetingTimeDateSelection({
               {timeSlots?.map((time, index) => {
                 return (
                   <Button
-                    disabled={!enableTimesSlot}
+                    disabled={!enableTimesSlot || checkTimeSlot(time)}
                     onClick={() => {
                       if (time != undefined) {
                         setSelectedTime(time);
